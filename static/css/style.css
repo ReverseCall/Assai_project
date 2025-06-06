@@ -1,0 +1,64 @@
+/* static/css/styles.css */
+
+/* Listagem na tela (grid flexível) */
+.produtos-lista {
+  display: grid;
+  grid-gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+.produto-item {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+/* Impressão em A4 (5 colunas) */
+.print-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1Fr);
+
+}
+.print-item {
+  border: 1px solid #aaa;
+  padding: 5px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  max-height: 150px;
+  /* Ajuste modular de altura/largura, se necessário */
+  /* width: 120px; height: 180px; */
+}
+
+#image-produto {
+  display: none;
+}
+
+#bar-code {
+  height: 50%;
+  width: auto;
+  object-fit: contain;
+}
+
+#texto {
+  display: none;
+}
+
+/* Quebra de página a cada 20 itens */
+.page-break {
+  page-break-after: always;
+}
+
+/* Ajustes somente para impressão */
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  /* Oculta navegação, botões ou outros elementos desnecessários em impressão */
+  .paginacao, header, footer {
+    display: none;
+  }
+  .print-item {
+    break-inside: avoid;
+  }
+}

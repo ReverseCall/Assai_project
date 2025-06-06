@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock styles %}
+
+{% block content %}
+  <h1>Lista de Produtos (Impressão) – Data: {{ data }}</h1>
+  <div class="print-container">
+    {% for produto in produtos %}
+      <div class="print-item">
+        <!-- Foto do produto -->
+        {% if produto.imagem and produto.imagem.name %}
+          <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" width="100" id="image-produto"><br>
+        {% else %}
+          <p><em>Sem imagem</em><br></p>
+        {% endif %}
+
+        <strong>{{ produto.nome }}</strong><br>
+
+        <!-- Código de barras -->
+        {% if produto.barcode_image and produto.barcode_image.name %}
+          <img src="{{ produto.barcode_image.url }}" alt="Código {{ produto.codigo }}" width="150" id="bar-code"><br>
+          <textarea id="texto">{{ produto.codigo }}</textarea>
+        {% elif produto.codigo %}
+          <p><em>Formato incompatível</em><br>
+          {{ produto.codigo }}</p>
+        {% else %}
+          <p><em>Sem código</em></p>
+        {% endif %}
+      </div>
+
+      {% if forloop.counter|divisibleby:"20" %}
+        <div class="page-break"></div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endblock %}

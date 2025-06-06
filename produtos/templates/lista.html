@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock styles %}
+
+{% block content %}
+  <h1>Produtos</h1>
+
+  <div class="produtos-lista">
+    {% for produto in page_obj %}
+      <div class="produto-item">
+        <!-- Foto do produto -->
+        {% if produto.imagem and produto.imagem.name %}
+        <!-- <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" width="150"> --> 
+        {% else %}
+          <p><em>Sem imagem</em></p>
+        {% endif %}
+
+        <h3>{{ produto.nome }}</h3>
+
+        <!-- Código de barras -->
+        {% if produto.barcode_image and produto.barcode_image.name %}
+          <img src="{{ produto.barcode_image.url }}" alt="Código {{ produto.codigo }}" width="200">
+          <p>Código: {{ produto.codigo }}</p>
+        {% elif produto.codigo %}
+          <p><em>Formato incompatível</em></p>
+          <p>Código: {{ produto.codigo }}</p>
+        {% else %}
+          <p><em>Sem código</em></p>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p>Nenhum produto cadastrado.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Navegação de páginas -->
+  <div class="paginacao">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}">&laquo; Anterior</a>
+    {% endif %}
+
+    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}">Próxima &raquo;</a>
+    {% endif %}
+  </div>
+{% endblock %}
