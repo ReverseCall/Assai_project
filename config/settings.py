@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-myyt!*_ffr_5%nlp45@w()8khjvz(v_!q@c^y0t=lv0c_b2e)o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*", "assai-project.onrender.com"]
 
 
 # Application definition
@@ -124,6 +124,10 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://assai-project.onrender.com",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
