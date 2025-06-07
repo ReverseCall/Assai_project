@@ -4,6 +4,7 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from barcode import get_barcode_class
 from barcode.writer import ImageWriter
+import os
 import logging
 
 
@@ -39,19 +40,24 @@ class Produto(models.Model):
     categoria = models.CharField(max_length=20, choices=CATEGORIAS)
     imagem = models.ImageField(upload_to='produtos/', blank=True)   # foto do produto
     codigo = models.CharField(max_length=100, blank=True)  # código manual
-    formato = models.CharField(max_length=20, choices=FORMATOS)
+    formato = models.CharField(max_length=20, choices=FORMATOS, default="code128")
     barcode_image = models.ImageField(upload_to='barcodes/', blank=True, null=True)
+
 
     def __str__(self):
         return self.nome
     
-    def save(self, *args, **kwargs):
-        is_new = self.pk is None  # verifica se é criação
-        super().save(*args, **kwargs)  # salva inicialmente para obter ID
 
-        # Gera o código de barras se o campo 'codigo' estiver preenchido
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+
+        nome_slug = self.nome.lower().replace(" ", "_")
+        codigo_slug = self.codigo or "sem_codigo"
+        filename = f"{nome_slug}_{codigo_slug}.png"
+
+        # Gera o código de barras
         if self.codigo:
-            # Recria código se não existir imagem ou se DEBUG=True
             needs_gen = (not self.barcode_image) or settings.DEBUG
             if needs_gen:
                 try:
@@ -60,14 +66,19 @@ class Produto(models.Model):
                     buffer = BytesIO()
                     barcode_obj.write(buffer)
                     buffer.seek(0)
-                    filename = f'barcode_{self.id}.png'
-                    # Usa ContentFile para salvar o bytes no ImageField
                     self.barcode_image.save(filename, ContentFile(buffer.getvalue()), save=False)
                     super().save(update_fields=['barcode_image'])
                 except Exception as e:
                     logger.error(f'Falha ao gerar código de barras para {self}: {e}')
         else:
-            # Se não há código, removemos imagem existente (opcional)
             if self.barcode_image:
                 self.barcode_image.delete(save=False)
-        # Se código não preenchido e DEBUG, pode exibir 'Sem código' na interface
+
+        # Usa imagem padrão se não enviada
+        if not self.imagem:
+            default_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'default_img.png')
+            if os.path.exists(default_path):
+                with open(default_path, 'rb') as f:
+                    from django.core.files import File
+                    self.imagem.save(filename, File(f), save=False)
+                    super().save(update_fields=['imagem'])
